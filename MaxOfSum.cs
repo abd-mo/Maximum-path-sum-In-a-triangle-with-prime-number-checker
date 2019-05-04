@@ -1,47 +1,61 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
+
+
 
 namespace final_assignment
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        static List<List<int>> a = new List<List<int>>
         {
-            Console.WriteLine("=================== Before resetting the prime numbers ===============");
+            new List<int>{1,   0 ,  0,  0  },
+            new List<int> {10, 24,   0,  0  },    //1>10>100>8  =119
+            new List<int>{100, 1,   200, 0  },
+            new List<int>{8,   5,   7,  7  },
 
-            foreach (var item in ConvertSArrngToListOfIntList(readTxt()))
-            {
-                foreach (var i in item)
-                {
-                    Console.Write(i + " \t");
-                }
-                Console.WriteLine();
-            }
+        };
+        static List<List<int>> b = new List<List<int>>
+        {
+           new List<int> {1,   0 ,  0,  0  },
+            new List<int>{8, 4,   0,  0  },
+            new List<int>{2, 6,   9, 0  },       //1>8>6>9  =24   //the given example
+            new List<int>{8,   5,   9,  3 },
+        };
+
+        static List<List<int>> c = new List<List<int>>
+        {
+            new List<int>{0,   0 ,  0,  0  },
+            new List<int>{7, 7,   0,  0  },
+            new List<int>{5, 5,   5, 0  },       //0         //all  numbers are no non prime
+            new List<int>{3,   5,   11,  3 },
+        };
+
+
+        static List<List<int>> d = new List<List<int>>
+        {
+            new List<int>{1,  0 },     //1>1   =2
+            new List<int>{1, 2, },
+
+        };
+        public static void Main(string[] args)
+        {
+
+            Console.WriteLine("The Maxmium path (string original) Is : {0}", MaxPath(AddZerosRow(StringToList(readTxt())), 0,0 )); //8186
             Console.WriteLine();
-            Console.WriteLine("=================== After resetting the prime numbers ===============");
+            Console.WriteLine("The Maxmium path (test a) Is: {0}", MaxPath(AddZerosRow(a), 0, 0));
             Console.WriteLine();
-            foreach (var item in ConvertPrimeToZero(ConvertSArrngToListOfIntList(readTxt())))
-            {
-                foreach (var i in item)
-                {
-                    Console.Write(i + " \t");
-                }
-                Console.WriteLine();
-            }
-
+            Console.WriteLine("The Maxmium path (test b) Is: {0}", MaxPath(AddZerosRow(b), 0, 0));
             Console.WriteLine();
-            Console.WriteLine("the maxmium sum is : {0}", MaxPathSum(ConvertPrimeToZero(ConvertSArrngToListOfIntList(readTxt()))));
-
-
-
+            Console.WriteLine("The Maxmium path (test c) Is : {0}", MaxPath(AddZerosRow(c), 0, 0));
+            Console.WriteLine();
+            Console.WriteLine("The Maxmium path (test c) Is : {0}", MaxPath(AddZerosRow(d), 0, 0));
+            Console.WriteLine();
             Console.ReadLine();
+
         }
 
-        //function to read the sArrng that contain the numbers
+        //function to read the string that contain the numbers
         static public string readTxt()
         {
             const string x = @"     215
@@ -62,33 +76,57 @@ namespace final_assignment
 
             return x;
         }
+        
 
-        //function to convert the sArrng text into list of list<int>
-        static public List<List<int>> ConvertSArrngToListOfIntList(string txt)
+        //function to convert the string text into list of list<int>
+        static public List<List<int>> StringToList(string txt)
         {
-            //calculate the number of rows inside the sArrng
-            int Rows = 1;
-            foreach (var item in txt)
-            {
-                if (item == '\n') Rows++;
-            }
-            //create an array by line characters
-            string[] arr = txt.Split('\n');
-            List<List<int>> b = new List<List<int>>();
-            for (int i = 0; i < Rows; i++)
-            {
+            var charArray = txt.Split('\n');
+            int rows = charArray.Length;
+            int[,] list = new int[rows, rows];
 
-                MatchCollection mc = Regex.Matches(arr[i], @"\d{3}");
-                List<int> aa = new List<int>();
-                foreach (Match item in mc)
+            for (int i = 0; i < charArray.Length; i++)
+            {
+                var numArr = charArray[i].Trim().Split(' ');
+
+                for (int j = 0; j < numArr.Length; j++)
                 {
-                    int y = int.Parse(item.Value);
-                    aa.Add(y);
+                    int number = Convert.ToInt32(numArr[j]);
+                    list[i, j] = number;
                 }
+            }
 
+            //convert array to list
+            List<List<int>> b = new List<List<int>>();
+            for (int i = 0; i < list.GetLength(0); i++)
+            {
+                List<int> aa = new List<int>();
+                for (int j = 0; j < list.GetLength(1); j++)
+                {
+                    aa.Add(list[i, j]);
+                }
                 b.Insert(i, aa);
             }
-            //complete every row to 15 values by adding zero
+
+
+            return b;
+        }
+
+        //function to add row of zeros(list) at the end of the list
+        static public List<List<int>> AddZerosRow(List<List<int>> b)
+        {
+            int Rows = b.Count;
+            //create zeros list (row)
+            List<int> zerosRow = new List<int>();
+            for (int i = 0; i <= Rows; i++)
+            {
+                zerosRow.Add(0);
+            }
+
+            //we add this row to deal with the last row in the orignal list
+            b.Add(zerosRow);
+
+            //complete every row to (Number of Rows) values by adding zero
             for (int i = 0; i < Rows; i++)
             {
                 if (b[i].Count <= Rows)
@@ -117,7 +155,6 @@ namespace final_assignment
                 {
                     if (num % a == 0)
                     {
-
                         return false;
                     }
 
@@ -125,52 +162,24 @@ namespace final_assignment
                 return true;
             }
         }
-        //function to convert  ALL the prime numbers inside the list into zeros
-        public static List<List<int>> ConvertPrimeToZero(List<List<int>> Arr)
+
+        //function to calculate the maximum path to the bottom with nonprime numbers
+        public static int MaxPath(List<List<int>> arr, int x, int y)
         {
-            var length = Arr.Count;
-            for (var i = 0; i < length; i++)
+            if (x >= arr.Count - 1)
+                return 0;
+            if (PrimeChecker(arr[x][y]))
+                return 0;
+
+            if (!PrimeChecker(arr[x + 1][y]) || !PrimeChecker(arr[x + 1][y + 1]))
             {
-                for (var j = 0; j < length; j++)
-                {
-                    if (Arr[i][j] == 0) continue;
-                    if (PrimeChecker(Arr[i][j]))
-                        Arr[i][j] = 0;
-                }
+                return arr[x][y] + Math.Max(MaxPath(arr, x + 1, y), MaxPath(arr, x + 1, y + 1));
+
             }
-            return Arr;
-        }
-        //function to calculate the maximum sum of the numbers
-        public static int MaxPathSum(List<List<int>> Arr)
-                       
-        {
-            int m = Arr.Count-1;
-            int n = Arr.Count - 1;
-            // loop for bottom-up calculation 
-            for (int i = m - 1; i >= 0; i--)
-            {
-                for (int j = 0; j <= i; j++)
-                {
-                    // for each element, 
-                    // check both elements 
-                    // just below the number 
-                    // and below right to 
-                    // the number add the 
-                    // maximum of them to it 
-                    if (Arr[i + 1][j] >
-                    Arr[i + 1][j + 1])
-                        Arr[i][j] +=
-                            Arr[i + 1][j];
-                    else
-                        Arr[i][j] +=
-                        Arr[i + 1][j + 1];
-                }
-            }
+           
+            else return 0;
 
 
-            // return the top element 
-            // which stores the maximum sum 
-            return Arr[0][0];
         }
 
     }
